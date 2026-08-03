@@ -1,0 +1,30 @@
+services:
+
+  # ─────────────────────────────────────────────────────────────
+  # POSTGRES — Instancia PostgreSQL compartida en la red projectes_network
+  # ─────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ## Solo accesible desde localhost del host (herramientas locales tipo DBeaver/psql)
+    ports:
+      - "127.0.0.1:5432:5432"
+    networks:
+      - projectes_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  projectes_network:
+    external: true
